@@ -1,0 +1,16 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:ypc="http://www.ay.com/schema/ypc-provider"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+       http://www.ay.com/schema/ypc-provider
+        http://www.ay.com/schema/ypc-provider/ypc-provider.xsd">
+    <ypc:provider id="zk-provider" zkAddress="192.168.30.0:2181" port="8070">
+        <ypc:provideServices className="com.protocol.Serializer" timeout="2000"/>
+        <ypc:provideServices className="com.balance.LoadBalance" timeout="2000"/>
+        <ypc:provideServices className="com.protocol.Serializer" timeout="3000"/>
+        <ypc:provideServices className="com.protocol.Serializer" timeout="4000"/>
+        <ypc:provideServices className="com.balance.LoadBalance" timeout="2000"/>
+    </ypc:provider>
+</beans>

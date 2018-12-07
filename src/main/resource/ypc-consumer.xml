@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:ypc="http://www.ay.com/schema/ypc-consumer"
+       xsi:schemaLocation="
+        http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+        http://www.ay.com/schema/ypc-consumer
+        http://www.ay.com/schema/ypc-consumer/ypc-consumer.xsd">
+
+<ypc:consumer id="zkService" zkAddress="192.168.30.0:2181" protocol="HESSIAN" loadBalance="random" proxy="CGLIB">
+    <!--服务端注册的服务 -->
+    <ypc:consumeServices name="testService1" interface="com.protocol.Serializer"/>
+    <ypc:consumeServices name="testService2" interface="com.balance.LoadBalance"/>
+</ypc:consumer>
+
+</beans>

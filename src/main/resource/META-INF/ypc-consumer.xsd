@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.ay.com/schema/ypc-consumer"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.ay.com/schema/ypc-consumer"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans" />
+    <xsd:import namespace="http://www.springframework.org/schema/tool" />
+
+
+    <xsd:element name="consumer">
+    <xsd:complexType>
+        <xsd:sequence>
+            <xsd:element name="consumeServices" type="consumeServices" maxOccurs="unbounded" minOccurs="0"/>
+        </xsd:sequence>
+        <xsd:attribute name="id" type="xsd:string"/>
+        <xsd:attribute name="zkAddress" type="xsd:string"/>
+        <xsd:attribute name="protocol" use="optional" default="HESSIAN">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="JDK"/>
+                    <xsd:enumeration value="HESSIAN"/>
+                    <xsd:enumeration value="JACKSON"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="loadBalance" use="optional" default="ip">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="random"/>
+                    <xsd:enumeration value="ip"/>
+                    <xsd:enumeration value="roundRobin"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+        <xsd:attribute name="proxy" use="optional" default="JDK">
+            <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                    <xsd:enumeration value="JDK"/>
+                    <xsd:enumeration value="CGLIB"/>
+                </xsd:restriction>
+            </xsd:simpleType>
+        </xsd:attribute>
+    </xsd:complexType>
+    </xsd:element>
+
+    <xsd:complexType name="consumeServices">
+        <xsd:attribute name="name" type="xsd:string"/>
+        <xsd:attribute name="interface" type="xsd:string"/>
+    </xsd:complexType>
+</xsd:schema>

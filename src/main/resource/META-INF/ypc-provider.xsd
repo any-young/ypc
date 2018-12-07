@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns="http://www.ay.com/schema/ypc-provider"
+            xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.ay.com/schema/ypc-provider"
+            elementFormDefault="qualified"
+            attributeFormDefault="unqualified">
+
+    <xsd:import namespace="http://www.springframework.org/schema/beans" />
+    <xsd:import namespace="http://www.springframework.org/schema/tool" />
+
+    <xsd:element name="provider">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="provideServices" type="provideServices" maxOccurs="unbounded" minOccurs="0"/>
+            </xsd:sequence>
+            <xsd:attribute name="id" type="xsd:string"/>
+            <xsd:attribute name="port" type="xsd:string"/>
+            <xsd:attribute name="zkAddress" type="xsd:string"/>
+            <xsd:attribute name="protocol" use="optional" default="HESSIAN">
+                <xsd:simpleType>
+                    <xsd:restriction base="xsd:string">
+                        <xsd:enumeration value="JDK"/>
+                        <xsd:enumeration value="HESSIAN"/>
+                        <xsd:enumeration value="JACKSON"/>
+                    </xsd:restriction>
+                </xsd:simpleType>
+            </xsd:attribute>
+        </xsd:complexType>
+    </xsd:element>
+    <xsd:complexType name="provideServices">
+        <xsd:attribute name="className" type="xsd:string"/>
+        <xsd:attribute name="timeout" type="xsd:string"/>
+    </xsd:complexType>
+</xsd:schema>

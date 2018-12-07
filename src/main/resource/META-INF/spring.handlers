@@ -1,0 +1,2 @@
+http\://www.ay.com/schema/ypc-consumer=com.config.util.YpcNameSpaceHandler
+http\://www.ay.com/schema/ypc-provider=com.config.util.YpcNameSpaceHandler

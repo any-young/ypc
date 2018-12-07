@@ -1,0 +1,224 @@
+package com.zk;
+
+import com.balance.net.RemoteNode;
+import com.balance.net.YpcURI;
+import com.collection.Cache;
+import com.collection.ConcurrentCache;
+import com.protocol.ProtocolSeletor;
+import com.protocol.Serializer;
+import com.zk.event.YpcChildEventHandler;
+import com.zk.event.YpcEventHandler;
+import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.curator.framework.CuratorFramework;
+import org.apache.curator.framework.CuratorFrameworkFactory;
+import org.apache.curator.framework.recipes.cache.ChildData;
+import org.apache.curator.framework.recipes.cache.PathChildrenCache;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
+import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
+import org.apache.curator.retry.ExponentialBackoffRetry;
+import org.apache.zookeeper.CreateMode;
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
+
+import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.util.*;
+
+/**
+ * say some thing
+ *
+ * @author angyang
+ * @version v1.0
+ * @date 2018/12/4
+ */
+@Data
+@Slf4j
+public class YpcZkServer implements InitializingBean {
+    private static final String SLASH = "/";
+    private static final String NAME_SPACE = "ypc";
+    private static final String NODE_NAME = "node_";
+    public static Cache<String, List<RemoteNode>> REMOTE_NODES = new ConcurrentCache<>();
+    private YpcEventHandler ypcEventHandler;
+    private String protocol;
+    private static Serializer serializer;
+    private CuratorFramework curatorFramework;
+    private String zkAddress;
+
+    /**
+     * 获取数据失败返回null
+     *
+     * @param path
+     * @return
+     */
+    private byte[] getData(String path) {
+        byte[] bytes = null;
+        try {
+            bytes = curatorFramework.getData().forPath(path);
+        } catch (Exception e) {
+            log.error("get data failed...", e);
+        }
+        return bytes;
+    }
+
+    /**
+     * 创建节点失败只做日志，不把异常抛出去
+     *
+     * @param uri
+     * @throws Exception
+     */
+    private void createNode(YpcURI uri, String nodePath) {
+        try {
+            curatorFramework.create()
+                    .creatingParentsIfNeeded()
+                    .withMode(CreateMode.EPHEMERAL_SEQUENTIAL)
+                    .forPath(nodePath, serializeToBytes(uri));
+        } catch (Exception e) {
+            log.error("create node failed...", e);
+        }
+    }
+
+    private List<String> getChildren(String node) {
+        List<String> children = null;
+        try {
+            children = curatorFramework.getChildren().forPath(supplyPath(node));
+        } catch (Exception e) {
+            log.error("get children failed...", e);
+        }
+        return children;
+    }
+
+    public void initProviders(HashSet<String> providers, String port) {
+        try {
+            InetAddress localHost = Inet4Address.getLocalHost();
+            YpcURI uri = new YpcURI(localHost.getHostAddress(), port);
+            for (String provider : providers){
+                String providerPath = supplyPath(provider, NODE_NAME);
+                createNode(uri, providerPath);
+            }
+        } catch (Exception e) {
+            log.error("init service failed...", e);
+        }
+    }
+
+    public void initConsumers(List<String> nodes) throws IOException {
+        for (String node : nodes) {
+            List<RemoteNode> remoteNodes = getChildrenData(node);
+            if (Objects.nonNull(remoteNodes)) {
+                REMOTE_NODES.setCache(node, remoteNodes);
+                //对于这个节点注册子节点变化的监听器
+                registerChildNodeListener(node);
+            } else {
+                log.info("no register node for class: " + node);
+            }
+        }
+        log.info(REMOTE_NODES.toString());
+    }
+
+    private void registerChildNodeListener(String node) {
+        PathChildrenCache pathChildrenCache = new PathChildrenCache(this.curatorFramework, supplyPath(node), true);
+        PathChildrenCacheListener listener = ((client, event) -> {
+            ChildData childData = event.getData();
+            if (Objects.nonNull(childData)) {
+                YpcURI ypcURI = null;
+                if (notEmptyByteArray(childData.getData())) {
+                    ypcURI = serializeToUri(childData.getData());
+                    switch (event.getType()) {
+                        case CHILD_ADDED:
+                            ypcEventHandler.nodeAdd(childData.getPath(), ypcURI);
+                            log.info("child node add... node: " + childData.getPath()+" data is : "+ypcURI);
+                            break;
+                        case CHILD_REMOVED:
+                            ypcEventHandler.nodeDelete(childData.getPath());
+                            log.info("child node delete... node: " + childData.getPath()+" data is : "+ypcURI);
+                            break;
+                        case CHILD_UPDATED:
+                            ypcEventHandler.nodeUpdate(childData.getPath(), ypcURI);
+                            log.info("child node change... node: " + childData.getPath()+" data is : "+ypcURI);
+                            break;
+                        default:
+                            break;
+                    }
+                }
+            }
+        });
+        pathChildrenCache.getListenable().addListener(listener);
+        System.out.println("Register zk watcher successfully! for: "+node);
+        try {
+            pathChildrenCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
+        } catch (Exception e) {
+            log.error("",e);
+        }
+    }
+
+    public static boolean notEmptyByteArray(byte[] objects) {
+        return Objects.nonNull(objects) && objects.length > 0;
+    }
+
+    private List<RemoteNode> getChildrenData(String node) throws IOException {
+        List<RemoteNode> remoteNodes = null;
+        List<String> children = getChildren(node);
+        if (!CollectionUtils.isEmpty(children)) {
+            remoteNodes = new LinkedList<>();
+            for (int i = 0; i < children.size(); i++) {
+                byte[] data = getData(supplyPath(node, children.get(i)));
+                remoteNodes.add(new RemoteNode(children.get(i), serializeToUri(data)));
+            }
+        }
+        return remoteNodes;
+    }
+
+    public YpcURI serializeToUri(byte[] bytes) throws IOException {
+        if (Objects.isNull(serializer)) return null;
+        return serializer.transToObject(YpcURI.class, bytes);
+    }
+
+    public byte[] serializeToBytes(Object object) throws IOException {
+        if (Objects.isNull(serializer)) return null;
+        return serializer.transToByte(object);
+    }
+
+    /**
+     * 补充节点路径
+     * 如果有父节点，则在节点前面加上父节点
+     *
+     * @param farther
+     * @param node
+     * @return
+     */
+    private static String supplyPath(String farther, String node) {
+        StringBuilder root = new StringBuilder(SLASH);
+        if (!StringUtils.isEmpty(farther)) {//如果有父节点，则在前面加上父节点的路径
+            root.append(farther).append(SLASH);
+        }
+        root.append(node);
+        return root.toString();
+    }
+
+    /**
+     * 补充路径
+     *
+     * @param node
+     * @return
+     */
+    private static String supplyPath(String node) {
+        return supplyPath(null, node);
+    }
+
+
+    @Override
+    public void afterPropertiesSet() {
+        //初始化序列化协议
+        serializer = ProtocolSeletor.getProtocol(protocol);
+        ypcEventHandler = new YpcChildEventHandler();
+        curatorFramework = CuratorFrameworkFactory.builder()
+                .connectString(zkAddress)
+                .connectionTimeoutMs(1000)
+                .retryPolicy(new ExponentialBackoffRetry(1000, 1))
+                .namespace(NAME_SPACE)
+                .build();
+        curatorFramework.start();
+    }
+}
