@@ -1,4 +1,4 @@
-package com.service;
+package com.service.server;
 
 import com.exception.NotFoundServiceException;
 

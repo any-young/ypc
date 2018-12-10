@@ -28,7 +28,6 @@ public class ProviderBootStrap implements InitializingBean {
                 && Objects.nonNull(providers)
                     && !StringUtils.isEmpty(port)){
             zkServer.initProviders(providers, port);
-            zkServer.initProviders(providers, port);
         }
     }
 }

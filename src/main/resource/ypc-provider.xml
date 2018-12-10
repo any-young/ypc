@@ -8,9 +8,9 @@
         http://www.ay.com/schema/ypc-provider/ypc-provider.xsd">
     <ypc:provider id="zk-provider" zkAddress="192.168.30.0:2181" port="8070">
         <ypc:provideServices className="com.protocol.Serializer" timeout="2000"/>
-        <ypc:provideServices className="com.balance.LoadBalance" timeout="2000"/>
+        <ypc:provideServices className="com.balance.Load" timeout="2000"/>
         <ypc:provideServices className="com.protocol.Serializer" timeout="3000"/>
         <ypc:provideServices className="com.protocol.Serializer" timeout="4000"/>
-        <ypc:provideServices className="com.balance.LoadBalance" timeout="2000"/>
+        <ypc:provideServices className="com.balance.Load" timeout="2000"/>
     </ypc:provider>
 </beans>

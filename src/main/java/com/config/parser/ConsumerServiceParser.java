@@ -1,7 +1,8 @@
 package com.config.parser;
 
 import com.config.util.FrameworkParserUtil;
-import com.service.SimpleServiceFindHandler;
+import com.filter.YpcParamterFilter;
+import com.service.client.SpringConsumeBeanProxy;
 import com.zk.ConsumerBootStrap;
 import com.zk.YpcZkServer;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
@@ -27,6 +28,7 @@ import static com.config.parser.AttributeEnum.*;
 public class ConsumerServiceParser extends AbstractSingleBeanDefinitionParser {
 
     private static final String ZK_SERVER = "ypc-consumer-zkServer";
+    private static final String ZK_FILTER = "ypc-filter";
     @Override
     protected Class<?> getBeanClass(Element element) {
         return ConsumerBootStrap.class;
@@ -39,13 +41,32 @@ public class ConsumerServiceParser extends AbstractSingleBeanDefinitionParser {
             beanDefinition.getPropertyValues().addPropertyValue(ZK_ADDRESS.value(), element.getAttribute(ZK_ADDRESS.value()));
             beanDefinition.getPropertyValues().addPropertyValue(PROTOCOL.value(),element.getAttribute(PROTOCOL.value()));
         });
+
+        //解析参数filter
+        FrameworkParserUtil.parse(ZK_FILTER, YpcParamterFilter.class, element, parserContext, beanDefinition -> {
+            beanDefinition.getPropertyValues().addPropertyValue(PROTOCOL.value(), element.getAttribute(PROTOCOL.value()));
+            beanDefinition.getPropertyValues().addPropertyValue(LOAD_BALANCE.value(), element.getAttribute(LOAD_BALANCE.value()));
+            beanDefinition.getPropertyValues().addPropertyValue(PROXY.value(), element.getAttribute(PROXY.value()));
+        });
         NodeList nodeList = element.getElementsByTagName("ypc:consumeServices");
         List<String> classes = new ArrayList<>();
         for (int i =0 ;i<nodeList.getLength(); i++){
             Element el = (Element) nodeList.item(i);
-            String name = el.getAttribute("name");
             String clazz = el.getAttribute("interface");
             classes.add(clazz);
+            String name = el.getAttribute("name");
+            //解析factoryBean，作为name的代替品
+            final Class<?> loadClass;
+            try {
+                loadClass = this.getClass().getClassLoader().loadClass(clazz);
+                FrameworkParserUtil.parse(name, SpringConsumeBeanProxy.class, element, parserContext, beanDefinition -> {
+                    beanDefinition.getPropertyValues().addPropertyValue("clazz", loadClass);
+                    beanDefinition.getPropertyValues().addPropertyValue("className", name);
+                    beanDefinition.getPropertyValues().addPropertyValue("filter", new RuntimeBeanReference(ZK_FILTER));
+                });
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
         //将ZK_SERVER的指针赋值给zkServer
         builder.addPropertyValue("classes",classes);
