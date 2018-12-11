@@ -15,5 +15,5 @@ public interface Serializer {
 
     byte[] transToByte(Object object) throws IOException;
 
-    String getName();
+    Integer getId();
 }

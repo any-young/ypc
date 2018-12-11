@@ -39,7 +39,6 @@ public class ConsumerServiceParser extends AbstractSingleBeanDefinitionParser {
         //解析解析并且初始化
         FrameworkParserUtil.parse(ZK_SERVER, YpcZkServer.class, element, parserContext, beanDefinition -> {
             beanDefinition.getPropertyValues().addPropertyValue(ZK_ADDRESS.value(), element.getAttribute(ZK_ADDRESS.value()));
-            beanDefinition.getPropertyValues().addPropertyValue(PROTOCOL.value(),element.getAttribute(PROTOCOL.value()));
         });
 
         //解析参数filter

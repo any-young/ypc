@@ -17,7 +17,7 @@ import java.io.IOException;
  */
 public class HessianSerializer implements Serializer {
 
-    private String name = "HESSIAN";
+    private Integer id = 1;
 
     public <T> T transToObject(Class<T> clazz, byte[] bytes) throws IOException {
         System.out.println(new String(bytes));
@@ -46,8 +46,8 @@ public class HessianSerializer implements Serializer {
     }
 
     @Override
-    public String getName() {
-        return name;
+    public Integer getId() {
+        return id;
     }
 
 }

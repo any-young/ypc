@@ -1,6 +1,6 @@
 package com.proxy;
 
-import com.proxy.cglib.CglibProxyClient;
+import com.proxy.client.cglib.CglibProxyClient;
 
 /**
  * say some thing

@@ -1,9 +1,8 @@
-package com.proxy.cglib;
+package com.proxy.client.cglib;
 
 
 import com.filter.YpcFilter;
 import com.proxy.YpcProxy;
-import lombok.Data;
 
 /**
  * say some thing

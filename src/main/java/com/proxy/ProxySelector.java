@@ -1,7 +1,6 @@
 package com.proxy;
 
-import com.filter.YpcFilter;
-import com.proxy.cglib.CglibProxyClient;
+import com.proxy.client.cglib.CglibProxyClient;
 
 import java.util.HashMap;
 import java.util.Map;

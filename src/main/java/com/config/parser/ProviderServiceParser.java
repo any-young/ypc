@@ -45,7 +45,6 @@ public class ProviderServiceParser extends AbstractSingleBeanDefinitionParser {
         FrameworkParserUtil.parse(FIND_SERVICE_OBJECT, SimpleServiceFindHandler.class, element, parserContext);
         FrameworkParserUtil.parse(ZK_SERVER, YpcZkServer.class, element, parserContext, beanDefinition -> {
             beanDefinition.getPropertyValues().addPropertyValue(ZK_ADDRESS.value(), element.getAttribute(ZK_ADDRESS.value()));
-            beanDefinition.getPropertyValues().addPropertyValue(PROTOCOL.value(), element.getAttribute(PROTOCOL.value()));
         });
         NodeList nodeList = element.getElementsByTagName("ypc:provideServices");
         List<String> list = new ArrayList<String>();

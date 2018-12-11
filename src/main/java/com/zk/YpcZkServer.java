@@ -42,7 +42,7 @@ public class YpcZkServer implements InitializingBean {
     private static final String NODE_NAME = "node_";
     public static Cache<String, List<RemoteNode>> REMOTE_NODES = new ConcurrentCache<>();
     private YpcEventHandler ypcEventHandler;
-    private String protocol;
+    private Integer protocol = 1;
     private static Serializer serializer;
     private CuratorFramework curatorFramework;
     private String zkAddress;
@@ -90,11 +90,17 @@ public class YpcZkServer implements InitializingBean {
         return children;
     }
 
+    /**
+     * 初始化providers
+     *
+     * @param providers
+     * @param port
+     */
     public void initProviders(HashSet<String> providers, String port) {
         try {
             InetAddress localHost = Inet4Address.getLocalHost();
             YpcURI uri = new YpcURI(localHost.getHostAddress(), port);
-            for (String provider : providers){
+            for (String provider : providers) {
                 String providerPath = supplyPath(provider, NODE_NAME);
                 createNode(uri, providerPath);
             }
@@ -103,6 +109,12 @@ public class YpcZkServer implements InitializingBean {
         }
     }
 
+    /**
+     * 初始化消费者
+     *
+     * @param nodes
+     * @throws IOException
+     */
     public void initConsumers(List<String> nodes) throws IOException {
         for (String node : nodes) {
             List<RemoteNode> remoteNodes = getChildrenData(node);
@@ -117,26 +129,30 @@ public class YpcZkServer implements InitializingBean {
         log.info(REMOTE_NODES.toString());
     }
 
-    private void registerChildNodeListener(String node) {
-        PathChildrenCache pathChildrenCache = new PathChildrenCache(this.curatorFramework, supplyPath(node), true);
+    /**
+     * 注册服务子节点的变化情况，对于每个class来说，本身为父节点
+     * 每个注册到父节点下面的子节点会随着服务的注册和停用增加和删除
+     */
+    private void registerChildNodeListener(String className) {
+        PathChildrenCache pathChildrenCache = new PathChildrenCache(this.curatorFramework, supplyPath(className), true);
         PathChildrenCacheListener listener = ((client, event) -> {
             ChildData childData = event.getData();
             if (Objects.nonNull(childData)) {
-                YpcURI ypcURI = null;
+                YpcURI ypcURI;
                 if (notEmptyByteArray(childData.getData())) {
                     ypcURI = serializeToUri(childData.getData());
                     switch (event.getType()) {
                         case CHILD_ADDED:
                             ypcEventHandler.nodeAdd(childData.getPath(), ypcURI);
-                            log.info("child node add... node: " + childData.getPath()+" data is : "+ypcURI);
+                            log.info("child node add... node: " + childData.getPath() + " data is : " + ypcURI);
                             break;
                         case CHILD_REMOVED:
                             ypcEventHandler.nodeDelete(childData.getPath());
-                            log.info("child node delete... node: " + childData.getPath()+" data is : "+ypcURI);
+                            log.info("child node delete... node: " + childData.getPath() + " data is : " + ypcURI);
                             break;
                         case CHILD_UPDATED:
                             ypcEventHandler.nodeUpdate(childData.getPath(), ypcURI);
-                            log.info("child node change... node: " + childData.getPath()+" data is : "+ypcURI);
+                            log.info("child node change... node: " + childData.getPath() + " data is : " + ypcURI);
                             break;
                         default:
                             break;
@@ -145,11 +161,11 @@ public class YpcZkServer implements InitializingBean {
             }
         });
         pathChildrenCache.getListenable().addListener(listener);
-        System.out.println("Register zk watcher successfully! for: "+node);
+        System.out.println("Register zk watcher successfully! for: " + className);
         try {
             pathChildrenCache.start(PathChildrenCache.StartMode.POST_INITIALIZED_EVENT);
         } catch (Exception e) {
-            log.error("",e);
+            log.error("registerChildNodeListener failed... ", e);
         }
     }
 

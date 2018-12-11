@@ -1,15 +1,13 @@
-package com.proxy.cglib;
+package com.proxy.client.cglib;
 
 
 
 import com.filter.YpcFilter;
-import com.filter.YpcParamterFilter;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
-import java.util.Objects;
 
 /**
  * say some thing

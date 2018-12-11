@@ -13,35 +13,18 @@ import java.util.Map;
  */
 public class ProtocolSeletor {
 
-    enum SerialEnum{
-        HESSIAN(new HessianSerializer());
-        private Serializer serializer;
 
-        SerialEnum(Serializer serializer){
-            this.serializer = serializer;
-        }
-
-        public Serializer getSerializer() {
-            return serializer;
-        }
-    }
-
-    private static Map<String, Serializer> serializerMap = new HashMap<>();
+    private static Map<Integer, Serializer> serializerMap = new HashMap<>();
     static{
-        Arrays.stream(SerialEnum.values()).forEach(serialEnum -> putSerializer(serialEnum.getSerializer()));
         putSerializer(new HessianSerializer());
     }
 
     private static void putSerializer(Serializer serializer){
-        serializerMap.put(serializer.getName(), serializer);
+        serializerMap.put(serializer.getId(), serializer);
     }
 
-
-    public static Serializer getProtocol(String protocol) {
-        if (protocol!=null){
+    public static Serializer getProtocol(int protocol){
             return serializerMap.get(protocol);
-        }
-        return null;
     }
 
 }
