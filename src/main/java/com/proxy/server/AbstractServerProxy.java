@@ -30,7 +30,7 @@ public abstract class AbstractServerProxy implements ServerProxy {
 
     @Override
     public Result invoke(YpcInvocation ypcInvocation) {
-        if (ypcInvocation.getClass().isAssignableFrom(object.getClass())){
+        if (ypcInvocation.getIntf().isAssignableFrom(object.getClass())){
             return doInvoke(ypcInvocation);
         }
         return null;

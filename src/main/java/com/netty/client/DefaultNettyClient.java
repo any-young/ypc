@@ -103,7 +103,8 @@ public class DefaultNettyClient extends AbstractNettyClient {
             }
             int protocol =in.readInt();
             int length = in.readInt();
-            if (length > in.readableBytes()){
+            int readable = in.readableBytes();
+            if (length > readable){
                 in.readerIndex(begin);
                 return;
             }

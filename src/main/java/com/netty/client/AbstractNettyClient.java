@@ -100,6 +100,7 @@ public abstract class AbstractNettyClient {
     private Callback initCallBack(YpcInvocation invocation) {
         String uuid = UUID.randomUUID().toString();
         Callback callback = new ResultCallBack(3000, invocation.getClassName());
+        invocation.setSerialNo(uuid);
         call_backs.putIfAbsent(uuid, callback);
         return callback;
     }

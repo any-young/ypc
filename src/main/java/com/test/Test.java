@@ -24,8 +24,10 @@ public class Test {
     private MockClient mockClient;
 
     @RequestMapping(value = "/test/client", method = RequestMethod.POST)
-    public void testClient(){
+    public String testClient(){
         log.info("进入测试方法");
-        mockClient.backClient("发消息给客户端！...");
+        String string = mockClient.backClient("发消息给客户端！...");
+        System.out.println("收到的消息是："+string);
+        return "收到的消息是："+string;
     }
 }

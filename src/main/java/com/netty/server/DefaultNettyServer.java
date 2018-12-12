@@ -136,15 +136,16 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
 
         @Override
         protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
-            if (msg instanceof YpcInvocation){
-                YpcInvocation invocation = ((YpcInvocation) msg);
-                int protocol = Integer.valueOf(invocation.getProtocol());
+            if (msg instanceof Result){
+                Result result = ((Result) msg);
+                int protocol = Integer.valueOf(result.getProtocol());
                Serializer serializer =  ProtocolSelector.getProtocol(protocol);
-                byte[] bytes = serializer.transToByte(invocation);
+                byte[] bytes = serializer.transToByte(result);
                 ByteBuffer byteBuffer = ByteBuffer.allocate(4*4*4+bytes.length);
                 byteBuffer.putInt(TOP_LENGTH);
                 byteBuffer.putInt(protocol);
                 byteBuffer.putInt(bytes.length);
+                byteBuffer.put(bytes);
                 byteBuffer.flip();
                 out.writeBytes(byteBuffer);
             }
@@ -215,7 +216,6 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
 
         @Override
         public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            log.info("get in...");
             super.channelRead(ctx, msg);
         }
 
@@ -237,7 +237,6 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
         @Override
         protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
             if (msg instanceof YpcInvocation) {
-                log.info("这里！");
                 invoke(ctx.channel(), (YpcInvocation) msg);
             } else if (msg instanceof HeartBeat) {
                 log.info("收到来自客户端 {} 的心跳...", ctx.channel().remoteAddress(), msg);
@@ -248,7 +247,6 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
                     heartBeatCache.putIfAbsent(ctx.channel().remoteAddress(), new AtomicInteger(0));
                 }
             }
-            log.info("什么都没走...");
         }
     }
 
