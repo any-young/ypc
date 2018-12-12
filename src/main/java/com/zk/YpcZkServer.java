@@ -4,7 +4,7 @@ import com.balance.net.RemoteNode;
 import com.balance.net.YpcURI;
 import com.collection.Cache;
 import com.collection.ConcurrentCache;
-import com.protocol.ProtocolSeletor;
+import com.protocol.ProtocolSelector;
 import com.protocol.Serializer;
 import com.zk.event.YpcChildEventHandler;
 import com.zk.event.YpcEventHandler;
@@ -227,7 +227,7 @@ public class YpcZkServer implements InitializingBean {
     @Override
     public void afterPropertiesSet() {
         //初始化序列化协议
-        serializer = ProtocolSeletor.getProtocol(protocol);
+        serializer = ProtocolSelector.getProtocol(protocol);
         ypcEventHandler = new YpcChildEventHandler();
         curatorFramework = CuratorFrameworkFactory.builder()
                 .connectString(zkAddress)

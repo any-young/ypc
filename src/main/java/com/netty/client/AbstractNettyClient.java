@@ -21,7 +21,6 @@ import java.util.concurrent.ScheduledExecutorService;
  */
 @Slf4j
 public abstract class AbstractNettyClient {
-    private ScheduledExecutorService scheduledExecutorService;
 
     private ConcurrentHashMap<String, ChannelFuture> channels = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Callback> call_backs = new ConcurrentHashMap<>();
@@ -30,12 +29,12 @@ public abstract class AbstractNettyClient {
         return new StringBuilder(uri.getRemoteAddress()).append(":").append(uri).append(uri.getPort()).toString();
     }
 
-    Callback doInvoke(YpcInvocation invocation) {
+    public Callback doInvoke(YpcInvocation invocation) {
         if (Objects.nonNull(invocation)) {
             String remoteAddress = getRemoteAddress(invocation.getYpcURI());
             ChannelFuture channelFuture = channels.get(remoteAddress);
             if (channelFuture == null) {
-                getChannel(invocation.getYpcURI());
+                channelFuture = getChannel(invocation.getYpcURI());
             }
             return sendMessage(invocation, channelFuture);
         }
@@ -46,7 +45,7 @@ public abstract class AbstractNettyClient {
         if (!CollectionUtils.isEmpty(channels)) {
             for (String key : channels.keySet()) {
                 ChannelFuture channelFuture = channels.get(key);
-                if (Objects.nonNull(channelFuture) && channelFuture.channel().isActive()) {
+                if (Objects.nonNull(channelFuture) && !channelFuture.channel().isActive()) {
                     channels.remove(key);
                 }
             }
@@ -77,12 +76,12 @@ public abstract class AbstractNettyClient {
                 return channelFuture;
             }
         } catch (Exception e) {
-            log.error("获取channel异常...", e);
+            log.error("connect to server failed ... server is {}:{}", uri.getRemoteAddress(), uri.getPort() , e);
         }
         return null;
     }
 
-    public abstract ChannelFuture connect(YpcURI uri);
+    public abstract ChannelFuture connect(YpcURI uri) throws InterruptedException;
 
     private Callback sendMessage(YpcInvocation invocation, ChannelFuture channelFuture) {
         Callback callback = null;
@@ -100,7 +99,7 @@ public abstract class AbstractNettyClient {
      */
     private Callback initCallBack(YpcInvocation invocation) {
         String uuid = UUID.randomUUID().toString();
-        Callback callback = new ResultCallBack(2000, invocation.getClassName());
+        Callback callback = new ResultCallBack(3000, invocation.getClassName());
         call_backs.putIfAbsent(uuid, callback);
         return callback;
     }

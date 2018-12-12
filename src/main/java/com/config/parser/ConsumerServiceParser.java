@@ -2,6 +2,7 @@ package com.config.parser;
 
 import com.config.util.FrameworkParserUtil;
 import com.filter.YpcParamterFilter;
+import com.protocol.ProtocolSelector;
 import com.service.client.SpringConsumeBeanProxy;
 import com.zk.ConsumerBootStrap;
 import com.zk.YpcZkServer;
@@ -43,7 +44,7 @@ public class ConsumerServiceParser extends AbstractSingleBeanDefinitionParser {
 
         //解析参数filter
         FrameworkParserUtil.parse(ZK_FILTER, YpcParamterFilter.class, element, parserContext, beanDefinition -> {
-            beanDefinition.getPropertyValues().addPropertyValue(PROTOCOL.value(), element.getAttribute(PROTOCOL.value()));
+            beanDefinition.getPropertyValues().addPropertyValue(PROTOCOL.value(), ProtocolSelector.getProtocolId(element.getAttribute(PROTOCOL.value())));
             beanDefinition.getPropertyValues().addPropertyValue(LOAD_BALANCE.value(), element.getAttribute(LOAD_BALANCE.value()));
             beanDefinition.getPropertyValues().addPropertyValue(PROXY.value(), element.getAttribute(PROXY.value()));
         });

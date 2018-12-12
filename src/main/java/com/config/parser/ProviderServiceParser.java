@@ -1,6 +1,7 @@
 package com.config.parser;
 
 import com.config.util.FrameworkParserUtil;
+import com.netty.server.DefaultNettyServer;
 import com.service.server.SimpleServiceFindHandler;
 import com.zk.ProviderBootStrap;
 import com.zk.YpcZkServer;
@@ -31,6 +32,7 @@ import static com.config.parser.AttributeEnum.*;
 public class ProviderServiceParser extends AbstractSingleBeanDefinitionParser {
     private static final String FIND_SERVICE_OBJECT = "serviceFindHandler";
     private static final String ZK_SERVER = "ypc-provider-zkServer";
+    private static final String NETTY_SERVER = "ypc-netty-server";
     private HashSet<String> providers = new HashSet<>();
     public static ConcurrentHashMap<String, String> timeouts = new ConcurrentHashMap<>();
 
@@ -43,6 +45,10 @@ public class ProviderServiceParser extends AbstractSingleBeanDefinitionParser {
     protected void doParse(Element element, ParserContext parserContext, BeanDefinitionBuilder builder) {
         //解析serviceFindHandler到内存中,主要是用来找到内存中的服务类对象
         FrameworkParserUtil.parse(FIND_SERVICE_OBJECT, SimpleServiceFindHandler.class, element, parserContext);
+        FrameworkParserUtil.parse(NETTY_SERVER, DefaultNettyServer.class, element, parserContext, beanDefinition -> {
+          beanDefinition.getPropertyValues().addPropertyValue(FIND_SERVICE_OBJECT, new RuntimeBeanReference(FIND_SERVICE_OBJECT));
+            beanDefinition.getPropertyValues().addPropertyValue("port", Integer.valueOf(element.getAttribute("port")));
+        });
         FrameworkParserUtil.parse(ZK_SERVER, YpcZkServer.class, element, parserContext, beanDefinition -> {
             beanDefinition.getPropertyValues().addPropertyValue(ZK_ADDRESS.value(), element.getAttribute(ZK_ADDRESS.value()));
         });

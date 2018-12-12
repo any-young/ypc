@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ImportResource;
 
 @SpringBootApplication
-@ImportResource(locations= {"classpath:ypc-consumer.xml","classpath:ypc-provider.xml"})
+@ImportResource(locations= {"classpath:ypc-provider.xml","classpath:ypc-consumer.xml"})
 public class DemoApplication {
 
     public static void main(String[] args) {

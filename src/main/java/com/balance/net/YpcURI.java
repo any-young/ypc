@@ -16,39 +16,74 @@ import java.util.concurrent.locks.ReentrantLock;
  * @author angyang
  * @date 2018/12/5
  */
-@Data
 public class YpcURI implements Serializable {
-    private static final long MIN_WAIT_TIME = 3000l;
+    /**
+     * 序列化号
+     */
+    private static final long serialVersionUID = 1L;
+
+    private transient static final long MIN_WAIT_TIME = 3000l;
     private String remoteAddress;
     private String port;
-    private String timeout;
-    private CountDownLatch count = new CountDownLatch(1);
-    private Lock lock = new ReentrantLock();
+    private String timeout = "3000";
+    private transient CountDownLatch count = new CountDownLatch(1);
+    private transient Lock lock = new ReentrantLock();
+
+    public String getRemoteAddress() {
+        return remoteAddress;
+    }
+
+    public void setRemoteAddress(String remoteAddress) {
+        this.remoteAddress = remoteAddress;
+    }
+
+    public String getPort() {
+        return port;
+    }
+
+    public void setPort(String port) {
+        this.port = port;
+    }
+
+    public String getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(String timeout) {
+        this.timeout = timeout;
+    }
+
+    public YpcURI() {
+        super();
+    }
     public YpcURI(String remoteAddress, String port, String timeout){
+        super();
         this.remoteAddress = remoteAddress;
         this.port = port;
         this.timeout = timeout;
     }
 
     public boolean tryLock() throws InterruptedException {
-        return lock.tryLock(MIN_WAIT_TIME, TimeUnit.MILLISECONDS);
+        return this.lock.tryLock(MIN_WAIT_TIME, TimeUnit.MILLISECONDS);
     }
 
     public void releaseLock(){
-        lock.unlock();
+        this.lock.unlock();
     }
 
     public YpcURI(String remoteAddress, String port){
-        this(remoteAddress, port, "3000");
+        super();
+        this.remoteAddress = remoteAddress;
+        this.port = port;
     }
 
     public void await(long time) throws InterruptedException {
         time = time==0?MIN_WAIT_TIME:time;
-        count.await(time, TimeUnit.MILLISECONDS);
+        this.count.await(time, TimeUnit.MILLISECONDS);
     }
 
     public void countDown(){
-        count.countDown();
+        this.count.countDown();
     }
 
 

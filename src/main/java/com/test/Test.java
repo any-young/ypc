@@ -1,8 +1,11 @@
 package com.test;
 
 import com.service.MockClient;
-import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 
@@ -13,31 +16,16 @@ import javax.annotation.Resource;
  * @author angyang
  * @date 2018/11/28
  */
-@Service
-public class Test implements InitializingBean {
+@RestController
+@CrossOrigin
+@Slf4j
+public class Test {
     @Resource
     private MockClient mockClient;
 
-    public static int findLengthOfLCIS(int[] nums) {
-        int max = 0;
-        int sum = 1 ;
-        for(int i=1; i<nums.length; i++){
-            if(nums[i]>nums[i-1]){
-                sum++;
-                continue;
-            }
-            max = Math.max(sum, max);
-            sum = 1;
-        }
-        return Math.max(sum, max);
-    }
-
-    public static void main(String[] args) {
-        findLengthOfLCIS(new int[]{1, 3,5,7});
-    }
-
-    @Override
-    public void afterPropertiesSet() throws Exception {
+    @RequestMapping(value = "/test/client", method = RequestMethod.POST)
+    public void testClient(){
+        log.info("进入测试方法");
         mockClient.backClient("发消息给客户端！...");
     }
 }

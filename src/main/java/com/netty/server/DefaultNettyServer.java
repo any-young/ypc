@@ -1,9 +1,10 @@
 package com.netty.server;
 
+import com.netty.EventGroupThreadFactory;
 import com.netty.message.HeartBeat;
 import com.netty.message.Result;
 import com.netty.message.YpcInvocation;
-import com.protocol.ProtocolSeletor;
+import com.protocol.ProtocolSelector;
 import com.protocol.Serializer;
 import com.proxy.server.NettyServerProxy;
 import com.service.server.ServiceFindHandler;
@@ -28,7 +29,6 @@ import java.nio.ByteBuffer;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -42,35 +42,35 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 public class DefaultNettyServer extends AbstractNettyServer implements InitializingBean {
     @Resource
-    ServiceFindHandler serviceFindHandler;
+    private ServiceFindHandler serviceFindHandler;
+
+    public ServiceFindHandler getServiceFindHandler() {
+        return serviceFindHandler;
+    }
+
+    public void setServiceFindHandler(ServiceFindHandler serviceFindHandler) {
+        this.serviceFindHandler = serviceFindHandler;
+    }
 
     ChannelFuture channelFuture;
     int port;
+
+    public int getPort() {
+        return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
+    }
 
     NettyServerProxy nettyServerProxy;
     private DefaultEventLoopGroup defaultEventGroup;
     private NioEventLoopGroup slaveGroup;
     private NioEventLoopGroup mastGroup;
     private ServerBootstrap serverBootstrap;
-    private ProtocolSeletor protocolSeletor = new ProtocolSeletor();
     private static final int TOP_LENGTH = 129 >> 1 | 34; // 数据协议头
     private static final int TOP_HEARTBEAT = 129 >> 1 | 36; // 心跳协议头
 
-    class EventGroupThreadFactory implements ThreadFactory {
-        private String name;
-        AtomicInteger atomicInteger;
-
-        public EventGroupThreadFactory(String name) {
-            this.name = name;
-            atomicInteger = new AtomicInteger(0);
-        }
-
-
-        @Override
-        public Thread newThread(Runnable r) {
-            return new Thread(r, name + "-Thread-" + atomicInteger.incrementAndGet());
-        }
-    }
 
     public DefaultNettyServer() {
         defaultEventGroup = new DefaultEventLoopGroup(Runtime.getRuntime().availableProcessors(), new EventGroupThreadFactory("defaultEventGroup"));
@@ -79,38 +79,38 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
 
         mastGroup = new NioEventLoopGroup(Runtime.getRuntime().availableProcessors(), new EventGroupThreadFactory("masterGroup"));
 
-        serverBootstrap = new ServerBootstrap().group(mastGroup, slaveGroup)
-                .channel(NioServerSocketChannel.class)
-                .option(ChannelOption.SO_KEEPALIVE, true)
-                .option(ChannelOption.SO_REUSEADDR, true)
-                .option(ChannelOption.TCP_NODELAY, true)
-                .option(ChannelOption.SO_BACKLOG, 1024)
-                .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
-                .option(ChannelOption.SO_SNDBUF, 10 * 1024 * 1024)
-                .option(ChannelOption.SO_RCVBUF, 10 * 1024 * 1024)
-                .childHandler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(defaultEventGroup);
-                        ch.pipeline().addLast(new EnCodeHandler());
-                        ch.pipeline().addLast(new DecodeHandler());
-                        ch.pipeline().addLast(new IdleStateHandler(60, 60, 60, TimeUnit.SECONDS));
-                        ch.pipeline().addLast(new YpcInboundHandler());
-                    }
-                })
-                .childOption(ChannelOption.SO_KEEPALIVE, true)
-                .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
-        try {
-            channelFuture = serverBootstrap.bind(port).sync();
-            log.info("bind port success! ....");
-        } catch (InterruptedException e) {
-            log.error("bind port error!", e);
-        }
     }
 
 
     private void init() {
         log.info("初始化netty服务端... ...");
+            serverBootstrap = new ServerBootstrap().group(mastGroup, slaveGroup)
+                    .channel(NioServerSocketChannel.class)
+                    .option(ChannelOption.SO_KEEPALIVE, true)
+                    .option(ChannelOption.SO_REUSEADDR, true)
+                    .option(ChannelOption.TCP_NODELAY, true)
+                    .option(ChannelOption.SO_BACKLOG, 1024)
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .option(ChannelOption.SO_SNDBUF, 10 * 1024 * 1024)
+                    .option(ChannelOption.SO_RCVBUF, 10 * 1024 * 1024)
+                    .childHandler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel ch) throws Exception {
+                            ch.pipeline().addLast(defaultEventGroup);
+                            ch.pipeline().addLast(new EnCodeHandler());
+                            ch.pipeline().addLast(new DecodeHandler());
+                            ch.pipeline().addLast(new IdleStateHandler(60, 60, 60, TimeUnit.SECONDS));
+                            ch.pipeline().addLast(new YpcInboundHandler());
+                        }
+                    })
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    .childOption(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT);
+            try {
+                channelFuture = serverBootstrap.bind(port).sync();
+                log.info("bind port success! .... at port: "+port);
+            } catch (InterruptedException e) {
+                log.error("bind port error!", e);
+            }
     }
 
     @Override
@@ -132,14 +132,14 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
         };
     }
 
-    public class EnCodeHandler extends MessageToByteEncoder {
+    class EnCodeHandler extends MessageToByteEncoder<Object> {
 
         @Override
         protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
             if (msg instanceof YpcInvocation){
                 YpcInvocation invocation = ((YpcInvocation) msg);
                 int protocol = Integer.valueOf(invocation.getProtocol());
-               Serializer serializer =  ProtocolSeletor.getProtocol(protocol);
+               Serializer serializer =  ProtocolSelector.getProtocol(protocol);
                 byte[] bytes = serializer.transToByte(invocation);
                 ByteBuffer byteBuffer = ByteBuffer.allocate(4*4*4+bytes.length);
                 byteBuffer.putInt(TOP_LENGTH);
@@ -151,7 +151,7 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
         }
     }
 
-    public class DecodeHandler extends ByteToMessageDecoder {
+    class DecodeHandler extends ByteToMessageDecoder {
 
         @Override
         protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
@@ -179,13 +179,15 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
             byte[] bytes = new byte[bodyLength];
             in.readBytes(bytes);
             in.discardReadBytes();//丢弃掉已经处理的字节
-            Serializer serializer = ProtocolSeletor.getProtocol(protocol);
+            Serializer serializer;
             switch(header){
                 case TOP_LENGTH:
+                    serializer = ProtocolSelector.getProtocol(protocol);
                     YpcInvocation invocation = serializer.transToObject(YpcInvocation.class, bytes);
                     out.add(invocation);
                     break;
                 case TOP_HEARTBEAT:
+                    serializer = ProtocolSelector.getProtocol(ProtocolSelector.DEFAULT_PROTOCOL);
                     HeartBeat heartBeat = serializer.transToObject(HeartBeat.class, bytes);
                     out.add(heartBeat);
                     break;
@@ -193,7 +195,7 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
         }
     }
 
-    public class YpcInboundHandler extends SimpleChannelInboundHandler {
+    class YpcInboundHandler extends SimpleChannelInboundHandler<Object> {
         private ConcurrentHashMap<SocketAddress, AtomicInteger> heartBeatCache = new ConcurrentHashMap<>();
 
         @Override
@@ -209,6 +211,12 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
         @Override
         public void channelInactive(ChannelHandlerContext ctx) throws Exception {
             super.channelInactive(ctx);
+        }
+
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            log.info("get in...");
+            super.channelRead(ctx, msg);
         }
 
         @Override
@@ -229,6 +237,7 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
         @Override
         protected void messageReceived(ChannelHandlerContext ctx, Object msg) throws Exception {
             if (msg instanceof YpcInvocation) {
+                log.info("这里！");
                 invoke(ctx.channel(), (YpcInvocation) msg);
             } else if (msg instanceof HeartBeat) {
                 log.info("收到来自客户端 {} 的心跳...", ctx.channel().remoteAddress(), msg);
@@ -239,6 +248,7 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
                     heartBeatCache.putIfAbsent(ctx.channel().remoteAddress(), new AtomicInteger(0));
                 }
             }
+            log.info("什么都没走...");
         }
     }
 
