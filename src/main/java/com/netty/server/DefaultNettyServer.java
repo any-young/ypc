@@ -247,6 +247,7 @@ public class DefaultNettyServer extends AbstractNettyServer implements Initializ
                     heartBeatCache.putIfAbsent(ctx.channel().remoteAddress(), new AtomicInteger(0));
                 }
             }
+            log.info("什么都没走...");
         }
     }
 

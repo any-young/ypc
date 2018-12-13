@@ -8,7 +8,7 @@
         http://www.ay.com/schema/ypc-consumer
         http://www.ay.com/schema/ypc-consumer/ypc-consumer.xsd">
 
-<ypc:consumer id="zkService" zkAddress="192.168.30.0:2181" protocol="HESSIAN" loadBalance="random" proxy="CGLIB">
+<ypc:consumer id="zkService" zkAddress="www.ay.com:2181" protocol="HESSIAN" loadBalance="random" proxy="CGLIB">
     <!--服务端注册的服务 -->
     <ypc:consumeServices name="mockClient" interface="com.service.MockClient"/>
 </ypc:consumer>
