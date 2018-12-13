@@ -5,10 +5,8 @@ import com.balance.net.YpcURI;
 import com.netty.message.YpcInvocation;
 import com.proxy.ProxySelector;
 import com.proxy.YpcProxy;
-import lombok.Data;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 
 /**
  * say some thing
@@ -17,7 +15,6 @@ import java.lang.reflect.Proxy;
  * @author angyang
  * @date 2018/12/10
  */
-@Data
 public class YpcParamterFilter implements YpcFilter {
     private String loadBalance;
     private String proxy;
@@ -43,5 +40,25 @@ public class YpcParamterFilter implements YpcFilter {
         YpcURI uri = LoadBalanceSelector.getLoadBalance(loadBalance).getUri(declareClass.getName());
         invocation.setYpcURI(uri);
         return invocation;
+    }
+
+    public String getLoadBalance() {
+        return loadBalance;
+    }
+
+    public void setLoadBalance(String loadBalance) {
+        this.loadBalance = loadBalance;
+    }
+
+    public void setProxy(String proxy) {
+        this.proxy = proxy;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
     }
 }

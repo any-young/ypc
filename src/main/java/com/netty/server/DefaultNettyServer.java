@@ -20,7 +20,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 
 import javax.annotation.Resource;
@@ -39,8 +40,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @version v1.0
  * @date 2018/12/11
  */
-@Slf4j
 public class DefaultNettyServer extends AbstractNettyServer implements InitializingBean {
+    private static final Logger log = LoggerFactory.getLogger(DefaultNettyServer.class);
     @Resource
     private ServiceFindHandler serviceFindHandler;
 

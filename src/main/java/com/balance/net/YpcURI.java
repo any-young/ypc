@@ -1,7 +1,5 @@
 package com.balance.net;
 
-import lombok.Data;
-
 import java.io.Serializable;
 import java.util.StringJoiner;
 import java.util.concurrent.CountDownLatch;

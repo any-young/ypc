@@ -1,6 +1,5 @@
 package com.zk.auth;
 
-import lombok.Data;
 
 /**
  * zookeeper的登录用户名
@@ -9,7 +8,6 @@ import lombok.Data;
  * @author angyang
  * @date 2018/12/5
  */
-@Data
 public class Cetificate {
 
     private String mode = "digist";
@@ -19,5 +17,29 @@ public class Cetificate {
     @Override
     public String toString(){
         return this.user+":"+this.password;
+    }
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    public String getUser() {
+        return user;
+    }
+
+    public void setUser(String user) {
+        this.user = user;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

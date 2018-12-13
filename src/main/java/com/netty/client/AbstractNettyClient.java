@@ -4,7 +4,8 @@ import com.balance.net.YpcURI;
 import com.netty.message.Result;
 import com.netty.message.YpcInvocation;
 import io.netty.channel.ChannelFuture;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Objects;
@@ -19,8 +20,8 @@ import java.util.concurrent.ScheduledExecutorService;
  * @version v1.0
  * @date 2018/12/11
  */
-@Slf4j
 public abstract class AbstractNettyClient {
+    private Logger log = LoggerFactory.getLogger(AbstractNettyClient.class);
 
     private ConcurrentHashMap<String, ChannelFuture> channels = new ConcurrentHashMap<>();
     private ConcurrentHashMap<String, Callback> call_backs = new ConcurrentHashMap<>();

@@ -13,7 +13,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * 
- * @author 17070680
+ *
  *
  */
 public class ResultCallBack implements Callback{

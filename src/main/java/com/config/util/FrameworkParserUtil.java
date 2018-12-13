@@ -1,6 +1,7 @@
 package com.config.util;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.BeanDefinition;
 import org.springframework.beans.factory.config.BeanDefinitionHolder;
 import org.springframework.beans.factory.parsing.BeanComponentDefinition;
@@ -16,8 +17,8 @@ import org.w3c.dom.Element;
  * @version v1.0
  * @date 2018/11/27
  */
-@Slf4j
 public class FrameworkParserUtil {
+    private static final Logger log = LoggerFactory.getLogger(FrameworkParserUtil.class);
 
     public static void parse(String id, Class<?> beanType, Element rootElement, ParserContext parserContext, ComponentParser componentParser) {
         try {

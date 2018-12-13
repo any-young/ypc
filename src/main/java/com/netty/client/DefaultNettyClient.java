@@ -19,7 +19,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
 import io.netty.handler.timeout.IdleStateHandler;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -37,8 +38,8 @@ import java.util.concurrent.TimeUnit;
  * @version v1.0
  * @date 2018/12/11
  */
-@Slf4j
 public class DefaultNettyClient extends AbstractNettyClient {
+    private static final Logger log = LoggerFactory.getLogger(DefaultNettyClient.class);
     ScheduledExecutorService executorService;
     private NioEventLoopGroup eventLoopGroup;
     private DefaultEventLoopGroup defaultEventLoopGroup;

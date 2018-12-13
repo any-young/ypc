@@ -1,6 +1,5 @@
 package com.balance.net;
 
-import lombok.Data;
 
 /**
  * say some thing
@@ -9,7 +8,6 @@ import lombok.Data;
  * @author angyang
  * @date 2018/12/5
  */
-@Data
 public class RemoteNode {
 
     private String nodeName;
@@ -21,6 +19,22 @@ public class RemoteNode {
 
     public RemoteNode(String nodeName, YpcURI uri){
         this.nodeName = nodeName;
+        this.uri = uri;
+    }
+
+    public String getNodeName() {
+        return nodeName;
+    }
+
+    public void setNodeName(String nodeName) {
+        this.nodeName = nodeName;
+    }
+
+    public YpcURI getUri() {
+        return uri;
+    }
+
+    public void setUri(YpcURI uri) {
         this.uri = uri;
     }
 }

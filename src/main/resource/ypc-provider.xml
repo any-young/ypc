@@ -9,4 +9,5 @@
     <ypc:provider id="zk-provider" zkAddress="www.ay.com:2181" port="6379">
         <ypc:provideServices className="com.service.MockClient" timeout="20000"/>
     </ypc:provider>
+    <bean name="mockClient" class="com.service.MockClient"/>
 </beans>

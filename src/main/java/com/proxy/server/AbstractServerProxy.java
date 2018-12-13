@@ -2,7 +2,8 @@ package com.proxy.server;
 
 import com.netty.message.Result;
 import com.netty.message.YpcInvocation;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * say some th
@@ -12,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author angyang
  * @date 2018/12/11
  */
-@Slf4j
 public abstract class AbstractServerProxy implements ServerProxy {
+    private static final Logger log = LoggerFactory.getLogger(AbstractServerProxy.class);
     protected Object object;
 
     public AbstractServerProxy(Object object) {

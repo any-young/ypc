@@ -3,16 +3,15 @@ package com.protocol.jackson;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.dataformat.smile.SmileFactory;
 import com.fasterxml.jackson.datatype.hibernate4.Hibernate4Module;
 import com.protocol.Serializer;
 
 /**
- * @author 17070680
+ *
  */
 public class JacksonSerializer implements Serializer {
     private static final int id = 1;
@@ -33,14 +32,10 @@ public class JacksonSerializer implements Serializer {
 
     public JacksonSerializer(String datePattern, boolean jacksonSmile, boolean pretty) {
         super();
-        if (jacksonSmile) {
-            objectMapper = new ObjectMapper(new SmileFactory());
-        } else {
-            objectMapper = new ObjectMapper();
-        }
+        objectMapper = new ObjectMapper();
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         objectMapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
-        objectMapper.setSerializationInclusion(Include.NON_NULL);
+        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         objectMapper.setDateFormat(new SimpleDateFormat(datePattern));
         objectMapper.configure(SerializationFeature.INDENT_OUTPUT, pretty);
         Hibernate4Module module = new Hibernate4Module();

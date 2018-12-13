@@ -3,7 +3,8 @@ package com.proxy.server;
 import com.netty.message.Const;
 import com.netty.message.Result;
 import com.netty.message.YpcInvocation;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 
@@ -14,8 +15,8 @@ import java.lang.reflect.Method;
  * @author angyang
  * @date 2018/12/11
  */
-@Slf4j
 public class NettyServerProxy extends AbstractServerProxy {
+    private static final Logger log = LoggerFactory.getLogger(NettyServerProxy.class);
     public NettyServerProxy(Object object) {
         super(object);
     }

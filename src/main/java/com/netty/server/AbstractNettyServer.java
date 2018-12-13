@@ -3,7 +3,8 @@ package com.netty.server;
 import com.executor.YpcExecutor;
 import com.netty.message.YpcInvocation;
 import io.netty.channel.Channel;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * say some thing
@@ -12,8 +13,8 @@ import lombok.extern.slf4j.Slf4j;
  * @author angyang
  * @date 2018/12/11
  */
-@Slf4j
 public abstract class AbstractNettyServer {
+    private static final Logger log = LoggerFactory.getLogger(AbstractNettyServer.class);
 
     protected final YpcExecutor ypcExecutor = new YpcExecutor("nio-netty-thread");
 

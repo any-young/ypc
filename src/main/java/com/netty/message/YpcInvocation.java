@@ -1,7 +1,6 @@
 package com.netty.message;
 
 import com.balance.net.YpcURI;
-import lombok.Data;
 
 import java.io.Serializable;
 
@@ -12,7 +11,6 @@ import java.io.Serializable;
  * @author angyang
  * @date 2018/12/10
  */
-@Data
 public class YpcInvocation implements Serializable {
     /**
      * @Fields serialVersionUID : TODO(用一句话描述这个变量表示什么)
@@ -28,4 +26,84 @@ public class YpcInvocation implements Serializable {
     private String protocol = "HESSIAN";
     private boolean returnType;
     private YpcURI ypcURI;//执行服务的url
+
+    public String getSerialNo() {
+        return serialNo;
+    }
+
+    public void setSerialNo(String serialNo) {
+        this.serialNo = serialNo;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
+
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public Class<?> getIntf() {
+        return intf;
+    }
+
+    public void setIntf(Class<?> intf) {
+        this.intf = intf;
+    }
+
+    public Class<?>[] getParameterTypes() {
+        return parameterTypes;
+    }
+
+    public void setParameterTypes(Class<?>[] parameterTypes) {
+        this.parameterTypes = parameterTypes;
+    }
+
+    public Object[] getParameters() {
+        return parameters;
+    }
+
+    public void setParameters(Object[] parameters) {
+        this.parameters = parameters;
+    }
+
+    public String getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(String timeout) {
+        this.timeout = timeout;
+    }
+
+    public String getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(String protocol) {
+        this.protocol = protocol;
+    }
+
+    public boolean isReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(boolean returnType) {
+        this.returnType = returnType;
+    }
+
+    public YpcURI getYpcURI() {
+        return ypcURI;
+    }
+
+    public void setYpcURI(YpcURI ypcURI) {
+        this.ypcURI = ypcURI;
+    }
 }

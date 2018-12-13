@@ -25,8 +25,10 @@ public class YpcChildEventHandler implements YpcEventHandler<YpcURI>{
         String className = getClassName(path);
         if (!StringUtils.isEmpty(className)){
             List<RemoteNode> remoteNodes =  REMOTE_NODES.getCache(className);
-            if (!CollectionUtils.isEmpty(remoteNodes) && !isExist(remoteNodes, path))
-            remoteNodes.add(new RemoteNode(path,ypcUri));
+            if (!CollectionUtils.isEmpty(remoteNodes) && !isExist(remoteNodes, path)) {
+                String nodeNum= path.substring(path.lastIndexOf('/') + 1);
+                remoteNodes.add(new RemoteNode(nodeNum, ypcUri));
+            }
             REMOTE_NODES.setCache(className, remoteNodes);
         }
     }
@@ -54,7 +56,7 @@ public class YpcChildEventHandler implements YpcEventHandler<YpcURI>{
             Iterator<RemoteNode> it = remoteNodes.iterator();
             if (it.hasNext()){
                 RemoteNode remoteNode = it.next();
-                if (remoteNode.getNodeName().contains(path))
+                if (path.contains(remoteNode.getNodeName()))
                     it.remove();
             }
             REMOTE_NODES.setCache(className, remoteNodes);
@@ -73,7 +75,7 @@ public class YpcChildEventHandler implements YpcEventHandler<YpcURI>{
 
     private boolean isExist(List<RemoteNode> remoteNodes, String path){
         for (RemoteNode remoteNode : remoteNodes){
-            if (remoteNode.getNodeName().contains(path)){
+            if (path.contains(remoteNode.getNodeName())){
                 return true;
             }
         }

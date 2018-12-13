@@ -12,5 +12,5 @@
     <!--服务端注册的服务 -->
     <ypc:consumeServices name="mockClient" interface="com.service.MockClient"/>
 </ypc:consumer>
-
+    <bean id="client" class="com.test.Client"/>
 </beans>

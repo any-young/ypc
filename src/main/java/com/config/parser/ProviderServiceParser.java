@@ -5,7 +5,8 @@ import com.netty.server.DefaultNettyServer;
 import com.service.server.SimpleServiceFindHandler;
 import com.zk.ProviderBootStrap;
 import com.zk.YpcZkServer;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.config.RuntimeBeanReference;
 import org.springframework.beans.factory.support.BeanDefinitionBuilder;
 import org.springframework.beans.factory.xml.AbstractSingleBeanDefinitionParser;
@@ -28,8 +29,8 @@ import static com.config.parser.AttributeEnum.*;
  * @version v1.0
  * @date 2018/12/7
  */
-@Slf4j
 public class ProviderServiceParser extends AbstractSingleBeanDefinitionParser {
+    private static final Logger log = LoggerFactory.getLogger(ProviderServiceParser.class);
     private static final String FIND_SERVICE_OBJECT = "serviceFindHandler";
     private static final String ZK_SERVER = "ypc-provider-zkServer";
     private static final String NETTY_SERVER = "ypc-netty-server";

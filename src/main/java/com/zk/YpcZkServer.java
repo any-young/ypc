@@ -8,16 +8,15 @@ import com.protocol.ProtocolSelector;
 import com.protocol.Serializer;
 import com.zk.event.YpcChildEventHandler;
 import com.zk.event.YpcEventHandler;
-import lombok.Data;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.PathChildrenCache;
-import org.apache.curator.framework.recipes.cache.PathChildrenCacheEvent;
 import org.apache.curator.framework.recipes.cache.PathChildrenCacheListener;
 import org.apache.curator.retry.ExponentialBackoffRetry;
 import org.apache.zookeeper.CreateMode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -34,9 +33,8 @@ import java.util.*;
  * @version v1.0
  * @date 2018/12/4
  */
-@Data
-@Slf4j
 public class YpcZkServer implements InitializingBean {
+    private static final Logger log = LoggerFactory.getLogger(YpcZkServer.class);
     private static final String SLASH = "/";
     private static final String NAME_SPACE = "ypc";
     private static final String NODE_NAME = "node_";
@@ -236,5 +234,54 @@ public class YpcZkServer implements InitializingBean {
                 .namespace(NAME_SPACE)
                 .build();
         curatorFramework.start();
+    }
+
+
+    public static Cache<String, List<RemoteNode>> getRemoteNodes() {
+        return REMOTE_NODES;
+    }
+
+    public static void setRemoteNodes(Cache<String, List<RemoteNode>> remoteNodes) {
+        REMOTE_NODES = remoteNodes;
+    }
+
+    public YpcEventHandler getYpcEventHandler() {
+        return ypcEventHandler;
+    }
+
+    public void setYpcEventHandler(YpcEventHandler ypcEventHandler) {
+        this.ypcEventHandler = ypcEventHandler;
+    }
+
+    public Integer getProtocol() {
+        return protocol;
+    }
+
+    public void setProtocol(Integer protocol) {
+        this.protocol = protocol;
+    }
+
+    public static Serializer getSerializer() {
+        return serializer;
+    }
+
+    public static void setSerializer(Serializer serializer) {
+        YpcZkServer.serializer = serializer;
+    }
+
+    public CuratorFramework getCuratorFramework() {
+        return curatorFramework;
+    }
+
+    public void setCuratorFramework(CuratorFramework curatorFramework) {
+        this.curatorFramework = curatorFramework;
+    }
+
+    public String getZkAddress() {
+        return zkAddress;
+    }
+
+    public void setZkAddress(String zkAddress) {
+        this.zkAddress = zkAddress;
     }
 }

@@ -1,6 +1,7 @@
 package com.executor;
 
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -12,8 +13,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @author angyang
  * @date 2018/12/11
  */
-@Slf4j
 public class YpcThreadFactory implements ThreadFactory {
+    private static final Logger log = LoggerFactory.getLogger(YpcThreadFactory.class);
 
     String name;
     public YpcThreadFactory(String name) {

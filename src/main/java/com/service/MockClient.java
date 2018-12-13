@@ -17,6 +17,6 @@ public class MockClient {
 
     public String backClient(String msg){
         System.out.println("test is ok! client say: " + msg);
-        return "客户端：好了我收到消息了";
+        return "客户端：好了我收到消息了...消息是："+msg;
     }
 }

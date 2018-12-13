@@ -1,13 +1,9 @@
 package com.zk;
 
-import com.protocol.Serializer;
-import com.zk.YpcZkServer;
-import lombok.Data;
 import org.springframework.beans.factory.InitializingBean;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.StringJoiner;
 
 /**
  * say some thing
@@ -16,7 +12,6 @@ import java.util.StringJoiner;
  * @author angyang
  * @date 2018/11/28
  */
-@Data
 public class ConsumerBootStrap implements InitializingBean {
     private YpcZkServer zkServer;
     private String loadBalance;
@@ -28,5 +23,29 @@ public class ConsumerBootStrap implements InitializingBean {
             zkServer.initConsumers(classes);//init 初始化消费者
             //register
             //ypcZkServer.initServer(classes);
+    }
+
+    public YpcZkServer getZkServer() {
+        return zkServer;
+    }
+
+    public void setZkServer(YpcZkServer zkServer) {
+        this.zkServer = zkServer;
+    }
+
+    public String getLoadBalance() {
+        return loadBalance;
+    }
+
+    public void setLoadBalance(String loadBalance) {
+        this.loadBalance = loadBalance;
+    }
+
+    public List<String> getClasses() {
+        return classes;
+    }
+
+    public void setClasses(List<String> classes) {
+        this.classes = classes;
     }
 }
